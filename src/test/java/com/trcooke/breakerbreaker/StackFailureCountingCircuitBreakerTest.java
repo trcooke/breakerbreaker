@@ -1,15 +1,19 @@
 package com.trcooke.breakerbreaker;
 
+import com.trcooke.breakerbreaker.time.TimeSource;
 import org.junit.Test;
 
-import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StackFailureCountingCircuitBreakerTest {
-    public static final int FAILURE_COUNT_THRESHOLD = 2;
-    public static final int TIMEOUT_IN_SECONDS = 2;
-    CircuitBreaker circuitBreaker = new StackFailureCountingCircuitBreaker(FAILURE_COUNT_THRESHOLD, TIMEOUT_IN_SECONDS);
+    private static final int FAILURE_COUNT_THRESHOLD = 2;
+    private static final int TIMEOUT_IN_SECONDS = 2;
+    private static final long TIMEOUT_IN_MILLIS = TIMEOUT_IN_SECONDS * 1000;
+    TimeSource timeSource = mock(TimeSource.class);
+    CircuitBreaker circuitBreaker = new StackFailureCountingCircuitBreaker(FAILURE_COUNT_THRESHOLD, TIMEOUT_IN_SECONDS, timeSource);
 
     @Test
     public void givenInitialised_ThenShouldBeClosed() {
@@ -55,25 +59,21 @@ public class StackFailureCountingCircuitBreakerTest {
 
     @Test
     public void givenThresholdFailuresReached_AndTimeoutExpired_ThenShouldBeHalfOpen() {
+        when(timeSource.getTimeMillis())
+                .thenReturn(0L)
+                .thenReturn(TIMEOUT_IN_MILLIS);
         circuitBreaker.registerFailure();
         circuitBreaker.registerFailure();
-        long timeAfterDoubleTimeout = System.currentTimeMillis() + (TIMEOUT_IN_SECONDS * 2000);
-        BreakerState breakerState;
-        do {
-            breakerState = circuitBreaker.getState();
-            if ((System.currentTimeMillis() > timeAfterDoubleTimeout) && breakerState == BreakerState.OPEN) {
-                fail("Breaker should be Half Open by now.");
-            }
-        } while (breakerState == BreakerState.OPEN);
-        assertThat(breakerState, is(BreakerState.HALF_OPEN));
+        assertThat(circuitBreaker.getState(), is(BreakerState.HALF_OPEN));
     }
 
     @Test
     public void givenThresholdFailuresReached_AndTimeoutNotExpired_ThenShouldBeOpen() {
+        when(timeSource.getTimeMillis())
+                .thenReturn(0L)
+                .thenReturn(TIMEOUT_IN_MILLIS - 1);
         circuitBreaker.registerFailure();
         circuitBreaker.registerFailure();
-        long timeAfterHalfTimeout = System.currentTimeMillis() + (TIMEOUT_IN_SECONDS * 500);
-        while (System.currentTimeMillis() < timeAfterHalfTimeout);
         assertThat(circuitBreaker.getState(), is(BreakerState.OPEN));
     }
 }

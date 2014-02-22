@@ -1,15 +1,19 @@
 package com.trcooke.breakerbreaker;
 
+import com.trcooke.breakerbreaker.time.TimeSource;
+
 public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
     private int failureCount = 0;
     private BreakerState breakerState = BreakerState.CLOSED;
     private int failureCountThreshold;
     private int timeoutInSeconds;
+    private TimeSource timeSource;
     private long lastOpenned;
 
-    StackFailureCountingCircuitBreaker(int failureCountThreshold, int timeoutInSeconds) {
+    StackFailureCountingCircuitBreaker(int failureCountThreshold, int timeoutInSeconds, TimeSource timeSource) {
         this.failureCountThreshold = failureCountThreshold;
         this.timeoutInSeconds = timeoutInSeconds;
+        this.timeSource = timeSource;
     }
 
     @Override
@@ -17,7 +21,7 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
         this.failureCount++;
         if (failureCount >= failureCountThreshold) {
             breakerState = BreakerState.OPEN;
-            lastOpenned = System.currentTimeMillis();
+            lastOpenned = timeSource.getTimeMillis();
         }
     }
 
@@ -54,7 +58,7 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
     }
 
     private boolean timeoutExpired() {
-        return (System.currentTimeMillis() > lastOpenned + (timeoutInSeconds * 1000));
+        return (timeSource.getTimeMillis() >= lastOpenned + (timeoutInSeconds * 1000));
     }
 
 }
