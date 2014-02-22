@@ -1,5 +1,6 @@
 package com.trcooke.breakerbreaker;
 
+import com.trcooke.breakerbreaker.exceptions.BreakerOpenException;
 import com.trcooke.breakerbreaker.time.TimeSource;
 
 public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
@@ -49,6 +50,13 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
     public BreakerState getState() {
         checkTimeout();
         return breakerState;
+    }
+
+    @Override
+    public void checkAvailable() throws BreakerOpenException {
+        if (breakerState == BreakerState.OPEN) {
+            throw new BreakerOpenException();
+        }
     }
 
     private void checkTimeout() {

@@ -1,5 +1,7 @@
 package com.trcooke.breakerbreaker;
 
+import com.trcooke.breakerbreaker.exceptions.BreakerOpenException;
+
 public interface CircuitBreaker {
 
     void registerFailure();
@@ -7,4 +9,6 @@ public interface CircuitBreaker {
     void registerSuccess();
 
     BreakerState getState();
+
+    void checkAvailable() throws BreakerOpenException;
 }
