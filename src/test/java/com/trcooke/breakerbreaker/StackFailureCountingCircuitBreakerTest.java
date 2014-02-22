@@ -76,4 +76,26 @@ public class StackFailureCountingCircuitBreakerTest {
         circuitBreaker.registerFailure();
         assertThat(circuitBreaker.getState(), is(BreakerState.OPEN));
     }
+
+    @Test
+    public void givenThresholdFailuresReached_AndTimeoutExpired_WhenRegisterFailure_ThenShouldBeOpen() {
+        when(timeSource.getTimeMillis())
+                .thenReturn(0L)
+                .thenReturn(TIMEOUT_IN_MILLIS);
+        circuitBreaker.registerFailure();
+        circuitBreaker.registerFailure();
+        circuitBreaker.registerFailure();
+        assertThat(circuitBreaker.getState(), is(BreakerState.OPEN));
+    }
+
+    @Test
+    public void givenThresholdFailuresReached_AndTimeoutExpired_WhenRegisterSuccess_ThenShouldBeClosed() {
+        when(timeSource.getTimeMillis())
+                .thenReturn(0L)
+                .thenReturn(TIMEOUT_IN_MILLIS);
+        circuitBreaker.registerFailure();
+        circuitBreaker.registerFailure();
+        circuitBreaker.registerSuccess();
+        assertThat(circuitBreaker.getState(), is(BreakerState.CLOSED));
+    }
 }

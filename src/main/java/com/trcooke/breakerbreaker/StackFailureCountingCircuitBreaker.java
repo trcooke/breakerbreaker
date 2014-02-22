@@ -28,16 +28,18 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
 
     @Override
     public void registerSuccess() {
+        checkTimeout();
         switch (breakerState) {
             case CLOSED: {
                 if (failureCount > 0) {
                     this.failureCount--;
                 }
+                break;
             }
             case HALF_OPEN: {
                 reset();
+                break;
             }
-            case OPEN:
         }
     }
 
