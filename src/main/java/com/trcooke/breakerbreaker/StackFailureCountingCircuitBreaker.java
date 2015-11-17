@@ -9,7 +9,7 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
     private int failureCountThreshold;
     private int timeoutInSeconds;
     private TimeSource timeSource;
-    private long lastOpenned;
+    private long lastOpened;
 
     StackFailureCountingCircuitBreaker(int failureCountThreshold, int timeoutInSeconds, TimeSource timeSource) {
         this.failureCountThreshold = failureCountThreshold;
@@ -22,7 +22,7 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
         this.failureCount++;
         if (failureCount >= failureCountThreshold) {
             breakerState = BreakerState.OPEN;
-            lastOpenned = timeSource.getTimeMillis();
+            lastOpened = timeSource.getTimeMillis();
         }
     }
 
@@ -68,7 +68,7 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
     }
 
     private boolean timeoutExpired() {
-        return (timeSource.getTimeMillis() >= lastOpenned + (timeoutInSeconds * 1000));
+        return (timeSource.getTimeMillis() >= lastOpened + (timeoutInSeconds * 1000));
     }
 
 }
