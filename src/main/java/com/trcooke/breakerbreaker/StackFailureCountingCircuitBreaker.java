@@ -40,6 +40,7 @@ public class StackFailureCountingCircuitBreaker implements CircuitBreaker {
                 reset();
                 break;
             }
+            default: break;
         }
     }
 
