@@ -1,5 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 version = '1.0'
 
@@ -10,4 +12,71 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.9.5'
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+group = "com.trcooke.breakerbreaker"
+archivesBaseName = "breakerbreaker"
+version = "1.1"
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'Breaker Breaker'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'A Circuit Breaker for Java'
+                url 'https://github.com/trcooke/breakerbreaker'
+
+                scm {
+                    connection 'scm:git:https://github.com/trcooke/breakerbreaker.git'
+                    developerConnection 'scm:git:https://github.com/trcooke/breakerbreaker.git'
+                    url 'https://github.com/trcooke/breakerbreaker.git'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'timdrivendev'
+                        name 'Tim Cooke'
+                        email 'tim@trcooke.com'
+                    }
+                }
+            }
+        }
+    }
 }
