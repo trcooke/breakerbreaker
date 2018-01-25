@@ -1,16 +1,17 @@
 package com.trcooke.breakerbreaker.time;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static com.trcooke.breakerbreaker.hamcrestmatcher.IsSystemTimeMillisGiveOrTake.isSystemTimeMillisGiveOrTake;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SystemTimeTest {
+class SystemTimeTest {
 
     TimeSource timeSource = new SystemTime();
 
     @Test
-    public void shouldGetSystemTimeThatIsNearEnoughThisSystemTime() throws Exception {
+    void shouldGetSystemTimeThatIsNearEnoughThisSystemTime() throws Exception {
         assertThat(timeSource.getTimeMillis(), isSystemTimeMillisGiveOrTake(100L));
     }
 }

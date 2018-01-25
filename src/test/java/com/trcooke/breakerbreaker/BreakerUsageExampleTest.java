@@ -3,20 +3,20 @@ package com.trcooke.breakerbreaker;
 import com.trcooke.breakerbreaker.example.Resource;
 import com.trcooke.breakerbreaker.exceptions.BreakerOpenException;
 import com.trcooke.breakerbreaker.time.SystemTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
-public class BreakerUsageExampleTest {
+class BreakerUsageExampleTest {
 
     Resource resource = mock(Resource.class);
     CircuitBreaker circuitBreaker = new StackFailureCountingCircuitBreaker(2, 100, new SystemTime());
     private ResourceAccessorWithBreaker resourceAccessorWithBreaker = new ResourceAccessorWithBreaker(resource, circuitBreaker);
 
-    @Test(expected = BreakerOpenException.class)
-    public void givenBreakerWithFailureThresholdOfTwo_WhenThreeConsecutiveFailures_ThenBreakerFailsFastOnThird() throws BreakerOpenException {
+    @Test
+    void givenBreakerWithFailureThresholdOfTwo_WhenThreeConsecutiveFailures_ThenBreakerFailsFastOnThird() throws BreakerOpenException {
         doThrow(new RuntimeException()).when(resource).doStuff();
         try {
             resourceAccessorWithBreaker.askResourceToDoStuff();
